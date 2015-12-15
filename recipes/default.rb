@@ -1,36 +1,34 @@
-if Chef::Config[:solo]
-  include_recipe "chef-solo-search"
-end
+include_recipe 'chef-solo-search' if Chef::Config[:solo]
 
-admins_group = node["users"]["admins"]["group"]
+admins_group = node['users']['admins']['group']
 
 # configure admins group
 group admins_group do
-  gid node["users"]["admins"]["gid"]
+  gid node['users']['admins']['gid']
 end
 
 template "/etc/sudoers.d/#{admins_group}" do
-  owner "root"
-  group "root"
-  mode "0440"
-  source "sudoers.erb"
+  owner 'root'
+  group 'root'
+  mode '0440'
+  source 'sudoers.erb'
 end
 
 # manage users
-search(:users, "*:*").each do |u|
-  uid = u["uid"]
-  gid = u["gid"]
-  name = u["id"]
+search(:users, '*:*').each do |u|
+  uid = u['uid']
+  gid = u['gid']
+  name = u['id']
   home = "/home/#{name}"
 
   # remove user
-  if u.has_key?("action") and u["action"] == "remove"
+  if u.key?('action') && u['action'] == 'remove'
     directory "#{home}/.ssh" do
       action :delete
       recursive true
     end
 
-    if u["sudo"]
+    if u['sudo']
       group admins_group do
         append true
         action :modify
@@ -38,7 +36,7 @@ search(:users, "*:*").each do |u|
       end
     end
 
-    u["groups"].each do |grp|
+    u['groups'].each do |grp|
       next if grp == admins_group
       group grp do
         append true
@@ -70,11 +68,11 @@ search(:users, "*:*").each do |u|
     uid uid
     gid gid
     home home
-    comment u["comment"]
-    supports :manage_home => true
+    comment u['comment']
+    supports manage_home: true
   end
 
-  u["groups"].each do |grp|
+  u['groups'].each do |grp|
     next if grp == admins_group
     group grp do
       append true
@@ -83,7 +81,7 @@ search(:users, "*:*").each do |u|
     end
   end
 
-  if u["sudo"]
+  if u['sudo']
     group admins_group do
       append true
       action :modify
@@ -94,15 +92,14 @@ search(:users, "*:*").each do |u|
   directory "#{home}/.ssh" do
     owner name
     group name
-    mode "0700"
+    mode '0700'
   end
 
-  if u["ssh_keys"].any?
-    template "#{home}/.ssh/authorized_keys" do
-      owner name
-      group name
-      mode "0600"
-      variables :ssh_keys => u["ssh_keys"]
-    end
+  next unless u['ssh_keys'].any?
+  template "#{home}/.ssh/authorized_keys" do
+    owner name
+    group name
+    mode '0600'
+    variables ssh_keys: u['ssh_keys']
   end
 end
