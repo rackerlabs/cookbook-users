@@ -1,5 +1,3 @@
-include_recipe 'chef-solo-search' if Chef::Config[:solo]
-
 admins_group = node['users']['admins']['group']
 
 # configure admins group
