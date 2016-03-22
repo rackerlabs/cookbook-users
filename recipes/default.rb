@@ -12,6 +12,9 @@ template "/etc/sudoers.d/#{admins_group}" do
   source 'sudoers.erb'
 end
 
+# array of username's that should be made members of admins_group
+admins = []
+
 # manage users
 search(:users, '*:*').each do |u|
   uid = u['uid']
@@ -79,13 +82,7 @@ search(:users, '*:*').each do |u|
     end
   end
 
-  if u['sudo']
-    group admins_group do
-      append true
-      action :modify
-      members [name]
-    end
-  end
+  admins.push(name) if u['sudo']
 
   directory "#{home}/.ssh" do
     owner name
@@ -100,4 +97,10 @@ search(:users, '*:*').each do |u|
     mode '0600'
     variables ssh_keys: u['ssh_keys']
   end
+end
+
+group admins_group do
+  append true
+  action :modify
+  members [admins]
 end
