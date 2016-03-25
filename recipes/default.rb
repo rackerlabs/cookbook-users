@@ -100,7 +100,6 @@ search(:users, '*:*').each do |u|
 end
 
 group admins_group do
-  append true
-  action :modify
+  action :manage
   members [admins]
 end
