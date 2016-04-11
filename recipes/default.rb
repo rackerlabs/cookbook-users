@@ -69,6 +69,7 @@ search(:users, '*:*').each do |u|
     uid uid
     gid gid
     home home
+    shell u['shell']
     comment u['comment']
     supports manage_home: true
   end
