@@ -29,22 +29,22 @@ search(:users, '*:*').each do |u|
       recursive true
     end
 
-    # if u['sudo']
-    #   group admins_group do
-    #     append true
-    #     action :modify
-    #     excluded_members [name]
-    #   end
-    # end
+    if u['sudo']
+      group admins_group do
+        append true
+        action :modify
+        excluded_members [name]
+      end
+    end
 
-    # u['groups'].each do |grp|
-    #   next if grp == admins_group
-    #   group grp do
-    #     append true
-    #     action :modify
-    #     excluded_members [name]
-    #   end
-    # end
+    u['groups'].each do |grp|
+      next if grp == admins_group
+      group grp do
+        append true
+        action :modify
+        excluded_members [name]
+      end
+    end
 
     user name do
       uid uid
