@@ -102,5 +102,5 @@ end
 
 group admins_group do
   action :manage
-  members [admins]
+  members admins
 end
